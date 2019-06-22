@@ -32,8 +32,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button button;
     TextView textView;
     LocationManager locationManager;
-    String lattitude,longitude;
+    public String lattitude,longitude;
     public static final String TAG = "YOUR-TAG-NAME";
+    private DatabaseReference mDatabase;
+    public static int primaryKey=1;
 
     protected  void  getInstance() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
         textView = (TextView)findViewById(R.id.text_location);
@@ -82,7 +86,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             getLocation();
+            writeToFirebase();
         }
+    }
+    private void writeToFirebase(){
+        Locationn locate = new Locationn(lattitude, longitude);
+        String prim = String.valueOf(primaryKey);
+        mDatabase.child("locations").child(prim).setValue(locate);
+        primaryKey++;
     }
 
     private void getLocation() {
@@ -93,10 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
 
         } else {
-            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            Location location1 = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            Location location2 = locationManager.getLastKnownLocation(LocationManager. PASSIVE_PROVIDER);
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
             if (location != null) {
                 double latti = location.getLatitude();
@@ -107,30 +115,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 textView.setText("Your current location is"+ "\n" + "Lattitude = " + lattitude
                         + "\n" + "Longitude = " + longitude);
 
-            } else  if (location1 != null) {
-                double latti = location1.getLatitude();
-                double longi = location1.getLongitude();
-                lattitude = String.valueOf(latti);
-                longitude = String.valueOf(longi);
-
-                textView.setText("Your current location is"+ "\n" + "Lattitude = " + lattitude
-                        + "\n" + "Longitude = " + longitude);
-
-
-            } else  if (location2 != null) {
-                double latti = location2.getLatitude();
-                double longi = location2.getLongitude();
-                lattitude = String.valueOf(latti);
-                longitude = String.valueOf(longi);
-
-                textView.setText("Your current location is"+ "\n" + "Lattitude = " + lattitude
-                        + "\n" + "Longitude = " + longitude);
-
-            }else{
+            } else{
 
                 Toast.makeText(this,"Unble to Trace your location",Toast.LENGTH_SHORT).show();
 
             }
+//            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//            Location location1 = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//            Location location2 = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+//
+//            if (location != null) {
+//                double latti = location.getLatitude();
+//                double longi = location.getLongitude();
+//                lattitude = String.valueOf(latti);
+//                longitude = String.valueOf(longi);
+//
+//                textView.setText("Your current location is"+ "\n" + "Lattitude = " + lattitude
+//                        + "\n" + "Longitude = " + longitude);
+//
+//            } else  if (location1 != null) {
+//                double latti = location1.getLatitude();
+//                double longi = location1.getLongitude();
+//                lattitude = String.valueOf(latti);
+//                longitude = String.valueOf(longi);
+//
+//                textView.setText("Your current location is"+ "\n" + "Lattitude = " + lattitude
+//                        + "\n" + "Longitude = " + longitude);
+//
+//
+//            } else  if (location2 != null) {
+//                double latti = location2.getLatitude();
+//                double longi = location2.getLongitude();
+//                lattitude = String.valueOf(latti);
+//                longitude = String.valueOf(longi);
+//
+//                textView.setText("Your current location is"+ "\n" + "Lattitude = " + lattitude
+//                        + "\n" + "Longitude = " + longitude);
+//
+//            }else{
+//
+//                Toast.makeText(this,"Unble to Trace your location",Toast.LENGTH_SHORT).show();
+//
+//            }
         }
     }
 
